@@ -32,13 +32,21 @@ def main():
     dwi_volume = nib.Nifti1Image(data[..., 0], dwi_img.affine)
     brain_mask_xform = resample(brain_mask, dwi_volume,
                                 moving_affine=seg_img.affine)
-    brain_mask_data = brain_mask_xform.get_fdata()
+    brain_mask_data = brain_mask_xform.get_fdata().astype(int)
+
     gtab = gradient_table(subject_files[1], subject_files[2])
     response_mask = mask_for_response_ssst(gtab, data, roi_radii=10, fa_thr=0.7)
     response, _ = response_from_mask_ssst(gtab, data, response_mask)
     csdm = csd.ConstrainedSphericalDeconvModel(gtab, response=response)
-    for engine in ["serial", "dask", "joblib", "ray"]:
+    for engine in ["dask", "joblib", "ray"]:
         print("Engine: ", engine)
+        print("One voxel per chunk")
+        t1 = time.time()
+        csdf = csdm.fit(data, mask=brain_mask_data, engine=engine,
+                        vox_per_chunk=1)
+        print("Duration:", time.time() - t1, "seconds")
+
+        print("Automated chunking")
         t1 = time.time()
         csdf = csdm.fit(data, mask=brain_mask_data, engine=engine)
         print("Duration:", time.time() - t1, "seconds")
