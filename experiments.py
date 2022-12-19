@@ -3,17 +3,18 @@ import dipy.reconst.csdeconv as csd
 from dipy.data.fetcher import fetch_hcp
 from dipy.core.gradients import gradient_table
 import nibabel  as nib
-from dipy.data import dipy_home
 import time
 
 
 def main():
     subject = 100307
-    fetch_dict = fetch_hcp(subject)
-    subject_dir = op.join(dipy_home,
-        "HCP_1200",
+    dataset_path = fetch_hcp(subject)[1]
+    subject_dir = op.join(
+        dataset_path,
         "derivatives",
-        "hcp_pipeline", "sub-{subject}", "ses-01",
+        "hcp_pipeline",
+        "sub-{subject}",
+        "ses-01",
         )
     subject_files = [op.join(subject_dir, "dwi",
          "sub-{subject}_dwi.{ext}") for ext in ["nii.gz", "bval", "bvec"]]
