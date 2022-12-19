@@ -13,11 +13,11 @@ def main():
         dataset_path,
         "derivatives",
         "hcp_pipeline",
-        "sub-{subject}",
+        f"sub-{subject}",
         "ses-01",
         )
     subject_files = [op.join(subject_dir, "dwi",
-         "sub-{subject}_dwi.{ext}") for ext in ["nii.gz", "bval", "bvec"]]
+         f"sub-{subject}_dwi.{ext}") for ext in ["nii.gz", "bval", "bvec"]]
     data_img = nib.load(subject_files[0])
     data = data_img.get_fdata()
     seg_img = nib.load(op.join(
